@@ -6,33 +6,40 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Stack Tower 2D</title>
     <style>
-       body {
-      margin: 0;
-      padding: 0;
-      height: 100vh; /* Altura siempre igual al 100% de la ventana */
-      display: flex;
-      justify-content: center; /* Centrar contenido horizontalmente */
-      align-items: center; /* Centrar contenido verticalmente */
-      overflow: hidden; /* Evitar scroll innecesario */
-      font-family: FreeMono, monospace;
-    }
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            /* Altura siempre igual al 100% de la ventana */
+            display: flex;
+            justify-content: center;
+            /* Centrar contenido horizontalmente */
+            align-items: center;
+            /* Centrar contenido verticalmente */
+            overflow: hidden;
+            /* Evitar scroll innecesario */
+            font-family: FreeMono, monospace;
+        }
 
-    /* Fondo GIF */
-    body::before {
-      content: "";
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: url('https://mir-s3-cdn-cf.behance.net/project_modules/max_1200/cca1e136569841.5720ffd3c7679.gif') no-repeat center center;
-      background-size: cover; /* El GIF cubrirá toda la pantalla manteniendo proporciones */
-      z-index: -1; /* Coloca el fondo detrás del contenido */
-    }
+        /* Fondo GIF */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://mir-s3-cdn-cf.behance.net/project_modules/max_1200/cca1e136569841.5720ffd3c7679.gif') no-repeat center center;
+            background-size: cover;
+            /* El GIF cubrirá toda la pantalla manteniendo proporciones */
+            z-index: -1;
+            /* Coloca el fondo detrás del contenido */
+        }
 
         canvas {
             border: 1px solid #000;
             background-color: transparent;
+            cursor: pointer;
         }
 
         span {
@@ -62,7 +69,7 @@
         const recordDocument = document.getElementById("record")
 
         const colors = {
-            1: "#FF8080",  
+            1: "#FF8080",
             2: "#FF9966",
             3: "#FFB266",
             4: "#FFCC66",
@@ -113,7 +120,8 @@
         let boxes = []
         let scrollCounter, cameraY, current, mode, xSpeed, ySpeed
         let debris = { x: 0, y: 0, width: 0, color: 'white' }
-        let record = 0
+        let record = loadRecord();
+        recordDocument.textContent = record
         let currentColor = 1
         function initializeGameState() {
             boxes = [{
@@ -229,7 +237,7 @@
         }
 
         function createStepColor() {
-            if (currentColor === 78)
+            if (currentColor === 30)
                 currentColor = 1
             else
                 currentColor++
@@ -281,20 +289,21 @@
         function gameOver() {
 
             mode = MODES.GAME_OVER;
-            context.fillStyle = 'rgba(255, 0, 0, 0.5)';
+            context.fillStyle = 'rgba(0, 0, 0, 0.5)';
             context.fillRect(0, 0, canvas.width, canvas.height);
 
             context.font = 'bold 30px FreeMono, monospace';
             context.fillStyle = 'white';
             context.textAlign = 'center';
-            context.fillText('Game Over', canvas.width / 2, canvas.height / 2 - 40);
+            context.fillText('Game Over', canvas.width / 2, canvas.height / 2 - 50);
 
             if (record < current - 1) {
                 record = current - 1
                 recordDocument.textContent = record
+                saveRecord(record)
                 // 
                 context.font = 'bold 18px FreeMono, monospace';
-                context.fillText(`Nuevo record !! ${current - 1} puntos`, canvas.width / 2, canvas.height / 2);
+                context.fillText(`Nuevo record!! ${current - 1} puntos`, canvas.width / 2, canvas.height / 2);
 
             }
             else {
@@ -307,9 +316,18 @@
 
             }
 
-            context.font = '20px FreeMono, monospace';
-            context.fillText('Click para comenzar', canvas.width / 2, canvas.height / 2 + 40);
+            context.font = '18px FreeMono, monospace';
+            context.fillText('Click o espacio para comenzar', canvas.width / 2, canvas.height / 2 + 50);
 
+        }
+
+        function saveRecord(record) {
+            localStorage.setItem('record', record);
+        }
+
+        function loadRecord() {
+            const savedRecord = localStorage.getItem('record');
+            return savedRecord ? parseInt(savedRecord, 10) : 0;
         }
 
         function randomColor() {
@@ -320,6 +338,9 @@
         document.addEventListener('keydown', (event) => {
             if (event.key === ' ' & mode === MODES.BOUNCE) {
                 mode = MODES.FALL
+            }else if (mode === MODES.GAME_OVER) {
+                score.textContent = 0
+                restart()
             }
         })
 
@@ -345,7 +366,7 @@
             <span>Puntos:<span id="score">0 </span></span>
             <span id="record-container">Record:<span id="record">0 </span></span>
         </div>
-        <canvas id="canvas" width="320" height="600"> </canvas>
+        <canvas id="canvas" width="340" height="600"> </canvas>
     </div>
 </body>
 
