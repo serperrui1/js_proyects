@@ -1,22 +1,22 @@
 
 import { getAllCategorias, getAllProductosByCategoria, getProductos } from "./services/products"
 import './App.css'
-import {useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Producto } from "./components/producto";
 import { ProductoInterface } from "./models/producto";
 import { Filtro } from "./components/filtro";
-import { FiltersContext } from "./contexts/context";
+
+import { useFilters } from "./hooks/useFilters";
 
 function App() {
-  const { filters } = useContext(FiltersContext)
+  const { filters, setCategorias } = useFilters()
   const [productos, setProductos ] = useState<ProductoInterface[]>([]);
-  const [categorias, setCategorias ] = useState<string[]>([]);
 
   useEffect(() => {
-    getProductos().then((data) => setProductos(data))
+    getProductos().then((data) => setProductos(data.splice(0, 19)))
   },[]);
   useEffect(() => {
-    if(filters.category === 'all'){
+    if(filters.category.name === 'all'){
     getAllCategorias().then((data) => setCategorias(data))}
     else{
       getAllProductosByCategoria(filters.category).then((data) => setProductos(data))
@@ -27,7 +27,7 @@ function App() {
   return (
     <>
       <h1>Productos</h1>
-      <Filtro categorias={categorias}/>
+      <Filtro />
       <ul className="productos">
         {productos.map((producto) => (
           <Producto key={producto.id}  producto={producto} />
