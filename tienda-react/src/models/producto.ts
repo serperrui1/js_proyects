@@ -3,12 +3,6 @@ export interface ProductoInterface {
   title: string
   price: number
   description: string
-  category: Category
-  images: string[]
-}
-
-export interface Category {
-  id: number
-  name: string
+  category: string
   image: string
 }

@@ -1,25 +1,24 @@
 import { createContext, useState, ReactNode } from 'react'
-import { Category } from '../models/producto';
 
 // Definir el tipo para el contexto
 interface FiltersContextType {
   filters: {
-    category: Category;
+    category: string;
     minPrice: number;
   };
   setFilters: React.Dispatch<React.SetStateAction<{
-    category: Category;
+    category: string;
     minPrice: number;
   }>>;
-  categorias: Category[];
-  setCategorias: React.Dispatch<React.SetStateAction<Category[]>>;
+  categorias: string[];
+  setCategorias: React.Dispatch<React.SetStateAction<string[]>>;
 }
 
 // Proveer un valor predeterminado
 const defaultFiltersContext: FiltersContextType = {
   filters: {
-    category: { id: 0, name: 'all', image: '' },
-    minPrice: 250
+    category: "all",
+    minPrice: 0
   },
   setFilters: () => {},
   categorias: [],
@@ -32,7 +31,7 @@ export const FiltersContext = createContext<FiltersContextType>(defaultFiltersCo
 // Este es el que nos provee de acceso al contexto
 export function FiltersProvider({ children }: { children: ReactNode }) {
   const [filters, setFilters] = useState(defaultFiltersContext.filters)
-  const [categorias, setCategorias ] = useState<Category[]>([]);
+  const [categorias, setCategorias ] = useState<string[]>([]);
   
 
   return (

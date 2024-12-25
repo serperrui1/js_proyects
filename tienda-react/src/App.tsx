@@ -1,7 +1,10 @@
-
-import { getAllCategorias, getAllProductosByCategoria, getProductos } from "./services/products"
-import './App.css'
-import { useEffect, useState } from "react";
+import {
+  getAllCategorias,
+  getAllProductosByCategoria,
+  getProductos,
+} from "./services/products";
+import "./App.css";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Producto } from "./components/producto";
 import { ProductoInterface } from "./models/producto";
 import { Filtro } from "./components/filtro";
@@ -9,32 +12,56 @@ import { Filtro } from "./components/filtro";
 import { useFilters } from "./hooks/useFilters";
 
 function App() {
-  const { filters, setCategorias } = useFilters()
-  const [productos, setProductos ] = useState<ProductoInterface[]>([]);
+  const { filters, setCategorias } = useFilters();
+  const [productos, setProductos] = useState<ProductoInterface[]>([]);
 
-  useEffect(() => {
-    getProductos().then((data) => setProductos(data.splice(0, 19)))
-  },[]);
-  useEffect(() => {
-    if(filters.category.name === 'all'){
-    getAllCategorias().then((data) => setCategorias(data))}
-    else{
-      getAllProductosByCategoria(filters.category).then((data) => setProductos(data))
+  const fetchProductos = useCallback(async () => {
+    let data;
+    if (filters.category === "all") {
+      data = await getProductos();
+      setProductos(data.slice(0, 20)); // Usar slice para evitar mutaciones.
+    } else {
+      data = await getAllProductosByCategoria(filters.category);
+      setProductos(data);
     }
-  },[filters]);
+  }, [filters.category]); // Solo se recrea cuando cambia la categoría.
 
+  // Filtrar productos en base al precio mínimo
+  const filteredProducts = useMemo(() => {
+    return productos.filter((producto) => producto.price >= filters.minPrice);
+  }, [productos, filters.minPrice]); // Solo se recalcula si cambian `productos` o `filters.minPrice`.
+
+  // Cargar productos y categorías al montar el componente
+  useEffect(() => {
+    const initializeData = async () => {
+      const productosData = await getProductos();
+      setProductos(productosData.slice(0, 20)); // Usar slice en lugar de splice.
+      const categoriasData = await getAllCategorias();
+      setCategorias(categoriasData);
+    };
+    initializeData();
+  }, [setCategorias]); // Se ejecuta solo al montar.
+
+  // Llamar a fetchProductos cuando cambia la categoría
+  useEffect(() => {
+    fetchProductos();
+  }, [fetchProductos]);
 
   return (
     <>
-      <h1>Productos</h1>
-      <Filtro />
-      <ul className="productos">
-        {productos.map((producto) => (
-          <Producto key={producto.id}  producto={producto} />
-        ))}
-      </ul>
+
+      <section className="productos-container">
+        <div className="filtro">
+          <Filtro />
+        </div>
+        <ul className="productos">
+          {filteredProducts.map((producto) => (
+            <Producto key={producto.id} producto={producto} />
+          ))}
+        </ul>
+      </section>
     </>
-  )
+  );
 }
 
-export default App
+export default App;

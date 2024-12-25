@@ -1,9 +1,28 @@
 .productos{
   margin: 0px;
+  margin-top: 1rem;
   padding: 0px;
   display: grid;
-  grid-template-columns: repeat(auto-fit,minmax(300px,1fr));
+  grid-template-columns: repeat(auto-fill,minmax(300px,1fr));
   gap: 1rem;
   background-color: #f5f5f5;
   
+}
+
+.nombre-tienda{
+  font-size: 2rem;
+  color: #333;
+  margin: 1.2rem;
+  text-align: center;
+}
+
+.productos-container{
+  padding-top: 5rem;
+}
+.filtro{
+  position: -webkit-sticky; /* Safari */
+  position: sticky;
+  text-align: end;
+  top: 3rem;
+  z-index: 1000;
 }
