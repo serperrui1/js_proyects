@@ -4,12 +4,10 @@ export function Filtro() {
   const { updateCategoryFilter, updateMinPrice, categorias } = useFilters();
 
   function handleSelect(event) {
-    console.log(event.target.value);
     updateCategoryFilter(event.target.value);
   }
   function handleMinPrice(event) {
 
-    console.log(event.target.value);
     updateMinPrice(parseInt(event.target.value));
   }
 

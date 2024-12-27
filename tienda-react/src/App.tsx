@@ -13,16 +13,21 @@ import { useFilters } from "./hooks/useFilters";
 
 function App() {
   const { filters, setCategorias } = useFilters();
+  const [cargando, setCargando] = useState(true);
   const [productos, setProductos] = useState<ProductoInterface[]>([]);
 
   const fetchProductos = useCallback(async () => {
     let data;
+    setCargando(true);
+    console.log(filters.category);
     if (filters.category === "all") {
       data = await getProductos();
       setProductos(data.slice(0, 20)); // Usar slice para evitar mutaciones.
+      setCargando(false);
     } else {
       data = await getAllProductosByCategoria(filters.category);
       setProductos(data);
+      setCargando(false);
     }
   }, [filters.category]); // Solo se recrea cuando cambia la categoría.
 
@@ -34,13 +39,15 @@ function App() {
   // Cargar productos y categorías al montar el componente
   useEffect(() => {
     const initializeData = async () => {
-      const productosData = await getProductos();
-      setProductos(productosData.slice(0, 20)); // Usar slice en lugar de splice.
-      const categoriasData = await getAllCategorias();
-      setCategorias(categoriasData);
+      // getProductos()
+      //   .then((res) => setProductos(res.slice(0, 20)))
+      //   .then(() => setCargando(false));
+      getAllCategorias()
+        .then((res) => setCategorias(res))
+        .then(() => setCargando(false));
     };
     initializeData();
-  }, [setCategorias]); // Se ejecuta solo al montar.
+  }, []); // Se ejecuta solo al montar.
 
   // Llamar a fetchProductos cuando cambia la categoría
   useEffect(() => {
@@ -49,17 +56,23 @@ function App() {
 
   return (
     <>
-
-      <section className="productos-container">
-        <div className="filtro">
-          <Filtro />
-        </div>
-        <ul className="productos">
-          {filteredProducts.map((producto) => (
-            <Producto key={producto.id} producto={producto} />
-          ))}
-        </ul>
-      </section>
+      <header>
+        <h1 className="nombre-tienda">Tienda</h1>
+      </header>
+      {productos.length === 0 || cargando ? (
+        <div className="loader"></div>
+      ) : (
+        <section className="productos-container">
+          <div className="filtro">
+            <Filtro />
+          </div>
+          <ul className="productos">
+            {filteredProducts.map((producto) => (
+              <Producto key={producto.id} producto={producto} />
+            ))}
+          </ul>
+        </section>
+      )}
     </>
   );
 }
