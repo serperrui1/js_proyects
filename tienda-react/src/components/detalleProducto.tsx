@@ -47,10 +47,10 @@ export function DetalleProducto() {
                 className="imagen-detalle"
               />
             </div>
-            <div>
+            <div className="info-container">
               <h1>{producto.title}</h1>
               <p>{producto.description}</p>
-              <p>{producto.price}€</p>
+              <p><strong>{producto.price}€</strong></p>
 
               <label htmlFor="unidades">Unidades:</label>
               <input
